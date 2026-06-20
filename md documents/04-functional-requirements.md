@@ -97,7 +97,7 @@ Behavior:
 - Câu hỏi mới có cosine similarity > 90% với cached query → return cached result ngay
 - Không gọi LLM → 0 token cost
 - Cache TTL: 24h (configurable)
-- Mục tiêu: giảm 80% token cost cho repeated queries
+- Agents hiện tốn 2:1 input-to-output token ratio cho context. Cache eliminates redundant LLM calls — actual reduction depends on query repetition rate trong codebase cụ thể
 
 ---
 
@@ -189,9 +189,20 @@ Behavior:
 
 Behavior:
 - Extend `.git/hooks/post-commit` khi install
-- Sau mỗi commit: detect nếu AI agent (Claude Code, Cursor...) đang active trong session
-- Nếu có pending reasoning từ session → trigger `gitwhy_save` automatically
-- Context prompt extracted từ: last user message / commit message / diff summary
+- Sau mỗi commit: trigger `gitwhy_save` automatically — dev không cần nhớ
+
+**Hook captures automatically:**
+- Prompt (pulled từ agent context / last user message)
+- Files changed trong commit
+- HEAD commit hash
+
+**Agent must still provide:**
+- `reasoning` — tại sao approach này
+- `decisions` — đã chọn gì
+- `rejected_alternatives` — đã cân nhắc và bỏ gì
+
+Hook reduces friction — không thể manufacture reasoning agent chưa produce. Agent vẫn phải generate 3 fields đó. Hook chỉ đảm bảo `gitwhy_save` fires mà không cần developer manually invoke.
+
 - Dev có thể disable per-repo: `git config gitwhy.autosave false`
 
 ---
@@ -200,11 +211,44 @@ Behavior:
 
 ### GRAPH-01: Auto-link contexts
 
+**Graph Storage:** SQLite với adjacency table tại `.git/gitwhy/graph.db`:
+
+```sql
+CREATE TABLE context_nodes (
+  id TEXT PRIMARY KEY,
+  context_id TEXT,
+  domain TEXT,
+  topic TEXT,
+  embedding BLOB
+);
+
+CREATE TABLE context_edges (
+  from_id TEXT REFERENCES context_nodes(id),
+  to_id TEXT REFERENCES context_nodes(id),
+  edge_type TEXT CHECK(edge_type IN (
+    'CAUSED_BY','CONSTRAINED_BY','INVALIDATES','CONTRADICTS','DEPENDS_ON'
+  )),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (from_id, to_id, edge_type)
+);
+```
+
+**Typed Edges:**
+
+| Edge Type | Nghĩa |
+|---|---|
+| `CAUSED_BY` | Decision A trực tiếp trigger decision B |
+| `CONSTRAINED_BY` | Decision B phải hoạt động trong bounds của A |
+| `INVALIDATES` | Decision B làm decision A obsolete |
+| `CONTRADICTS` | B conflict với A — fires alert |
+| `DEPENDS_ON` | B chỉ đúng nếu assumption trong A vẫn còn valid |
+
+**Tại sao typed edges, không phải similarity links:** RAG trả lời "cái gì similar với X?" Graph trả lời "cái gì downstream của X?" và "cái gì break nếu X thay đổi?" Similarity search không thể answer dependency queries. Graph traversal có thể.
+
 Behavior:
-- Sau mỗi `gitwhy_save`: compute embedding cho context
-- So sánh với existing contexts trong project
-- Nếu similarity > threshold → tạo edge A→B trong local graph
-- Graph lưu tại `.git/gitwhy/graph.json`
+- Sau mỗi `gitwhy_save`: compute embedding cho context, insert node vào graph.db
+- So sánh với existing nodes để detect semantic overlap
+- Insert typed edge giữa related contexts vào context_edges table
 
 ### GRAPH-02: Graph traversal query
 

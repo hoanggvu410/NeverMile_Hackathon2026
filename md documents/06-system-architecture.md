@@ -18,7 +18,7 @@
                │  ┌──────────────────────────┐   │
                │  │  Local Context Storage    │   │
                │  │  .git/gitwhy/contexts/   │   │
-               │  │  .git/gitwhy/graph.json  │   │
+               │  │  .git/gitwhy/graph.db    │   │
                │  └──────────────────────────┘   │
                └───────────────┬────────────────┘
                                │ HTTPS (khi có API key)
@@ -91,7 +91,7 @@ gitwhy-mcp
   │       → Query cloud API cho team contexts
   │
   ├─ [4] Context Graph (v0.2):
-  │       → Load graph.json
+  │       → Query graph.db (SQLite adjacency table)
   │       → Find matching root node
   │       → Traverse edges (max 2-hop)
   │       → Build decision chain
@@ -196,7 +196,7 @@ gitwhy/
 │   ├── cxt_20260620_abc123.md   ← individual context files (whyspec)
 │   ├── cxt_20260619_def456.md
 │   └── ...
-├── graph.json                    ← context graph edges (v0.2)
+├── graph.db                      ← context graph SQLite adjacency table (v0.2)
 ├── cache/
 │   └── semantic.db               ← local semantic cache (SQLite, v0.2)
 └── sync.json                     ← sync state (which contexts uploaded)

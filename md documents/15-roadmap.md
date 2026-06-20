@@ -46,17 +46,17 @@
 ### Sprint 2 — Semantic Cache (2 tuần)
 
 - [ ] SQLite cache local tại `.git/gitwhy/cache/semantic.db`
-- [ ] Embed query khi search (Ada-002 / text-embedding-3-small)
+- [ ] Embed query khi search (text-embedding-3-small cho cloud; nomic-embed-text cho local/offline)
 - [ ] Cosine similarity lookup: > 90% → return cache
 - [ ] Cache TTL: 24h, max 1,000 entries
 - [ ] Metrics: cache hit rate, token savings
-- [ ] Demo: bill giảm 80% so với không có cache
+- [ ] Metrics: cache hit rate, token savings (actual reduction depends on query repetition rate trong codebase)
 
 ### Sprint 3 — Context Graph (3 tuần)
 
 - [ ] Embedding generation cho mỗi context khi save
 - [ ] Auto-link contexts với similarity > threshold
-- [ ] graph.json local storage format
+- [ ] SQLite adjacency table (graph.db) — context_nodes + context_edges với typed edges
 - [ ] 2-hop traversal query
 - [ ] `gitwhy_search` trả về decision chain (không chỉ list)
 - [ ] Demo: "tại sao bỏ Kafka" → chuỗi decision + PR + cost note trong 3s

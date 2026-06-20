@@ -1,6 +1,6 @@
 # 00 — Tổng quan hệ thống GitWhy
 
-> **GitWhy** là shared AI context engine cho git — lưu, tìm kiếm, và chia sẻ *lý do* đằng sau mỗi thay đổi code. AI viết code, GitWhy giữ lại reasoning.
+> **GitWhy** là agent memory layer cho AI coding agents — pre-compute context để agents không phải rediscover từ đầu mỗi session. Thay vì spin up 10 explore agents để tìm "tại sao Kafka bị xóa," agent query GitWhy trước, nhận answer trong 1 query, inject vào context. LLM nhận lean, focused prompt thay vì đọc 50 files.
 
 ---
 
@@ -10,10 +10,10 @@ Khi AI coding agent (Claude Code, Cursor, Windsurf...) generate hoặc modify co
 
 | Stakeholder | Vấn đề |
 |-------------|--------|
-| **Dev** | Mất 30% thời gian đi hỏi lại "tại sao commit này đổi DB" |
+| **Dev** | 12–15 major context switches mỗi ngày × 23 phút recovery = **>4.5 giờ mất focus** (DEV Community, 2026) |
 | **Reviewer** | Chỉ thấy *what* thay đổi, không thấy *why* |
-| **Team** | Mất 40% thời gian copy context giữa Slack → Notion → Jira |
-| **AI Agent** | Không có context từ session trước → duplicate reasoning |
+| **Team** | 73% công ty vượt AI budget dù token price giảm 67% — vì **volume từ agent loops**, không phải unit price (Pebblous, 2026) |
+| **AI Agent** | Multi-agent systems tốn **2:1 input-to-output token ratio** — phần lớn để communicate context, không phải generate output (arXiv, 2026) |
 
 **Tagline: "GitWhy = why.log, không phải git.log"**
 
@@ -49,7 +49,7 @@ GitWhy gồm ba thành phần chính:
 
 | Feature | Mô tả |
 |---------|-------|
-| **Context Graph** | Mỗi commit/PR → 1 node. Auto-link A→B qua embedding rerank 2-hop |
+| **Context Graph** | Mỗi context → 1 node. Typed edges: CAUSED_BY, CONSTRAINED_BY, INVALIDATES, CONTRADICTS, DEPENDS_ON. 2-hop traversal trên SQLite adjacency table |
 | **Auto-save Hook** | Extend post-commit hook → tự trigger save, không cần manual |
 | **Semantic Cache** | Câu hỏi lặp >90% similarity → trả lời ngay, 0 token |
 | **Web UI Polish** | Font Inter 14px, line-height 1.6, padding tăng |

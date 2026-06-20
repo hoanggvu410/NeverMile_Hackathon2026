@@ -12,7 +12,7 @@ Hệ quả:
 - Onboarding dev mới kéo dài vì không có audit trail của reasoning
 - AI agent bắt đầu session mới không có context của session trước → duplicate effort
 
-**GitWhy** đứng giữa để giải quyết bài toán này: lưu context AI, link với commit, chia sẻ lên PR, tìm kiếm lại khi cần.
+**GitWhy** là agent memory layer đứng giữa để giải quyết bài toán này: pre-compute context để agents stop rediscovering everything từ đầu. Agent query GitWhy trước khi touch LLM — nhận lean, focused context thay vì crawl 50 files. LLM stops being a search engine và starts being a reasoner.
 
 ---
 
@@ -56,7 +56,7 @@ Hệ quả:
 > Các context phải có thể liên kết với nhau theo chain of decisions.
 
 - Mỗi commit/PR/msg → 1 node trong graph
-- Auto-link A→B qua embedding similarity (2-hop rerank)
+- Auto-link A→B qua typed edges (CAUSED_BY, CONSTRAINED_BY, INVALIDATES, CONTRADICTS, DEPENDS_ON) trong SQLite adjacency table
 - Query "tại sao đổi AWS" → ra luôn decision chain + config + PR
 
 ### BR-05: Zero-friction capture (v0.2)
@@ -64,8 +64,8 @@ Hệ quả:
 > Dev không nên phải nhớ tay trigger save.
 
 - Post-commit hook tự động trigger `gitwhy_save`
-- Semantic cache cho câu hỏi lặp: >90% similarity → 0 token cost
-- Demo: bill giảm 80% so với không có cache
+- Semantic cache: query deduplication layer. >90% cosine similarity với cached query → return cached result, 0 LLM token
+- Agents hiện tốn 2:1 input-to-output token ratio cho context communication. Cache eliminates redundant LLM calls cho repeated queries — actual reduction depends on query repetition rate trong codebase cụ thể
 
 ### BR-06: Web Dashboard
 

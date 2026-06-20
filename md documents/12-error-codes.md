@@ -84,9 +84,9 @@ Format lỗi MCP tool (trả về trong content):
 
 | Code | MCP | Mô tả |
 |------|-----|-------|
-| `GRAPH_NOT_INITIALIZED` | — | graph.json chưa tồn tại — run `gitwhy_save` ít nhất 1 lần |
+| `GRAPH_NOT_INITIALIZED` | — | graph.db chưa tồn tại — run `gitwhy_save` ít nhất 1 lần |
 | `GRAPH_TRAVERSAL_TIMEOUT` | — | Graph traversal > 10s (graph quá lớn) |
-| `GRAPH_CORRUPT` | — | graph.json bị corrupt — xóa và rebuild |
+| `GRAPH_CORRUPT` | — | graph.db bị corrupt — xóa và rebuild |
 
 ---
 

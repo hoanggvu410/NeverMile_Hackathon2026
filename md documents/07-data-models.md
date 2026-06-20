@@ -73,34 +73,59 @@ interface GitWhyContext {
 
 ## 2. Context Graph (v0.2)
 
-Lưu tại `.git/gitwhy/graph.json`.
+Lưu tại `.git/gitwhy/graph.db` (SQLite). Flat JSON file không thể do graph traversal — SQLite adjacency table cho phép query typed edges.
 
-```json
-{
-  "version": 1,
-  "nodes": {
-    "cxt_20260610_xyz789": {
-      "id": "cxt_20260610_xyz789",
-      "topic": "kafka-removal",
-      "domain": "infrastructure",
-      "embedding_hash": "sha256_of_embedding"
-    },
-    "cxt_20260615_def456": {
-      "id": "cxt_20260615_def456",
-      "topic": "sqs-migration",
-      "domain": "infrastructure"
-    }
-  },
-  "edges": [
-    {
-      "from": "cxt_20260610_xyz789",
-      "to": "cxt_20260615_def456",
-      "relationship": "led_to",
-      "similarity": 0.87,
-      "created_at": "2026-06-15T08:00:00Z"
-    }
-  ]
-}
+```sql
+CREATE TABLE context_nodes (
+  id TEXT PRIMARY KEY,
+  context_id TEXT,
+  domain TEXT,
+  topic TEXT,
+  embedding BLOB
+);
+
+CREATE TABLE context_edges (
+  from_id TEXT REFERENCES context_nodes(id),
+  to_id TEXT REFERENCES context_nodes(id),
+  edge_type TEXT CHECK(edge_type IN (
+    'CAUSED_BY',
+    'CONSTRAINED_BY',
+    'INVALIDATES',
+    'CONTRADICTS',
+    'DEPENDS_ON'
+  )),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (from_id, to_id, edge_type)
+);
+```
+
+### Typed Edges
+
+| Edge Type | Nghĩa |
+|---|---|
+| `CAUSED_BY` | Decision A trực tiếp trigger decision B |
+| `CONSTRAINED_BY` | Decision B phải hoạt động trong bounds của A |
+| `INVALIDATES` | Decision B làm decision A obsolete |
+| `CONTRADICTS` | B conflict với A — fires alert |
+| `DEPENDS_ON` | B chỉ đúng nếu assumption trong A vẫn còn valid |
+
+**Tại sao typed edges, không phải similarity links:** RAG trả lời "cái gì similar với X?" Graph trả lời "cái gì downstream của X?" và "cái gì break nếu X thay đổi?" Similarity search không thể answer dependency queries. Graph traversal có thể.
+
+### Traversal Query Pattern (2-hop)
+
+```sql
+WITH RECURSIVE chain AS (
+  SELECT to_id, edge_type, 1 AS depth
+  FROM context_edges WHERE from_id = ?
+  UNION ALL
+  SELECT e.to_id, e.edge_type, c.depth + 1
+  FROM context_edges e
+  JOIN chain c ON e.from_id = c.to_id
+  WHERE c.depth < 2
+)
+SELECT n.*, c.edge_type, c.depth
+FROM chain c
+JOIN context_nodes n ON n.id = c.to_id;
 ```
 
 ---
