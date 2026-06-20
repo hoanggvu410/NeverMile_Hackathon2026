@@ -143,6 +143,17 @@ What you expose (write these functions first, implement after):
 Your directory: internal/graph/, internal/cache/
 Do not create files outside these directories.
 
+**Key design decision you need to make on day 1 — how edges are built:**
+
+When SaveToGraph(ctx) is called, you must auto-link the new context to related existing ones.
+Proposed flow (see 07-data-models.md for full detail):
+1. Embed the new context
+2. Cosine similarity against all existing embeddings → top 3 above 0.75
+3. Send each pair to LLM → classify edge type (CAUSED_BY / DEPENDS_ON / etc)
+4. Write edges to context_edges
+
+PENDING: decide whether edge type is always LLM-inferred (Option A) or agent can pass it explicitly at save time (Option B). Document your decision in 07-data-models.md before implementing.
+
 Build and test Search() in isolation with seed data before integrating with Section 1.
 The demo: Search("tại sao bỏ Kafka") must return a 3-node chain. Search it twice — second call must return cache hit = true.
 ```

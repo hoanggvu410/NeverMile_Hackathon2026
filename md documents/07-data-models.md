@@ -111,6 +111,37 @@ CREATE TABLE context_edges (
 
 **Tại sao typed edges, không phải similarity links:** RAG trả lời "cái gì similar với X?" Graph trả lời "cái gì downstream của X?" và "cái gì break nếu X thay đổi?" Similarity search không thể answer dependency queries. Graph traversal có thể.
 
+### Edge Linking Algorithm — how edges are created (PENDING DECISION)
+
+Khi `gitwhy_save` được gọi, system phải tự động link context mới vào graph. Flow đề xuất:
+
+```
+gitwhy_save(new_context)
+    ↓
+1. Embed new_context → vector (text-embedding-3-small)
+2. SELECT top 3 from context_nodes ORDER BY cosine_similarity(embedding, new_vector) DESC
+   WHERE similarity > 0.75
+    ↓
+3. Send to LLM:
+   "Given these two decisions:
+    A: {new_context.reasoning + decisions}
+    B: {candidate.reasoning + decisions}
+    What is the causal relationship? Choose: CAUSED_BY / CONSTRAINED_BY / INVALIDATES / CONTRADICTS / DEPENDS_ON / NONE"
+    ↓
+4. LLM returns edge_type
+5. INSERT INTO context_edges (from_id, to_id, edge_type)
+```
+
+**Cost per save:** ~1,500 tokens total (1 embedding + 1 LLM classification call × top 3 candidates)
+
+**PENDING DECISION — two options:**
+- **Option A (auto):** LLM infers edge type from content at save time — zero extra work for developer
+- **Option B (explicit):** Agent provides edge type hint in `gitwhy_save` input — more accurate, requires agent to reason about relationships
+
+Recommendation: Option A for MVP (hackathon). Add Option B as override later.
+
+**If no candidates above 0.75:** context saved as isolated node — no edges created. Normal for the first few saves.
+
 ### Traversal Query Pattern (2-hop)
 
 ```sql

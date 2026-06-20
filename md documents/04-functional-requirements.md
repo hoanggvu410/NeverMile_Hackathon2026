@@ -245,10 +245,26 @@ CREATE TABLE context_edges (
 
 **Tại sao typed edges, không phải similarity links:** RAG trả lời "cái gì similar với X?" Graph trả lời "cái gì downstream của X?" và "cái gì break nếu X thay đổi?" Similarity search không thể answer dependency queries. Graph traversal có thể.
 
+**Edge Linking — how edges are built at save time (PENDING DECISION):**
+
+Mỗi khi `gitwhy_save` được gọi, graph phải auto-link context mới với related contexts. Flow đề xuất:
+
+1. Embed context mới (text-embedding-3-small)
+2. Cosine similarity so với tất cả existing embeddings trong graph.db
+3. Lấy top 3 matches có similarity > 0.75
+4. Gửi context mới + top 3 matches lên LLM — prompt: "what is the causal relationship between these decisions?"
+5. LLM trả về edge type: `CAUSED_BY` / `DEPENDS_ON` / `CONTRADICTS` / etc
+6. Write edge vào context_edges
+
+**Cost per save:** 1 embedding call + 1 small LLM classification call (~500 tokens)
+
+**PENDING:** Edge type classification có thể được LLM tự suy luận từ content, hoặc agent cung cấp explicitly khi gọi `gitwhy_save`. Cần quyết định trước khi implement Section 2.
+
 Behavior:
 - Sau mỗi `gitwhy_save`: compute embedding cho context, insert node vào graph.db
-- So sánh với existing nodes để detect semantic overlap
-- Insert typed edge giữa related contexts vào context_edges table
+- So sánh với existing embeddings → top 3 candidates (cosine similarity > 0.75)
+- LLM classify edge type cho từng candidate pair
+- Insert typed edges vào context_edges table
 
 ### GRAPH-02: Graph traversal query
 
