@@ -22,6 +22,12 @@ func HandlePostPR(database *sql.DB, app *githubapp.App) http.HandlerFunc {
 			return
 		}
 
+		if app == nil {
+			writeError(w, http.StatusServiceUnavailable, "GITHUB_APP_NOT_CONFIGURED",
+				"GitHub App is not configured on this server")
+			return
+		}
+
 		row, err := dbpkg.GetContextByLocalID(database, req.ContextLocalID)
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch context")

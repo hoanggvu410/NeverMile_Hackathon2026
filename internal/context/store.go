@@ -243,6 +243,15 @@ func (s *Store) walkContexts() ([]ContextSummary, error) {
 			domain = parts[0]
 			topic = parts[1]
 		}
+		// Fall back to fields parsed from the file itself (handles multi-level domain paths).
+		if (domain == "_" || topic == "_") && (ctx.Domain != "" || ctx.Topic != "") {
+			if ctx.Domain != "" {
+				domain = ctx.Domain
+			}
+			if ctx.Topic != "" {
+				topic = ctx.Topic
+			}
+		}
 		summaries = append(summaries, ContextSummary{
 			ID:     ctx.ID,
 			Title:  ctx.Title,

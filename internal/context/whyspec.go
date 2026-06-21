@@ -155,13 +155,48 @@ func Parse(src string) (*Context, error) {
 	}
 
 	for _, line := range lines {
-		// H1: title
+		// H1: title (two variants)
 		if strings.HasPrefix(line, "# Context:") {
 			ctx.Title = strings.TrimSpace(strings.TrimPrefix(line, "# Context:"))
 			continue
 		}
+		if strings.HasPrefix(line, "# ") && ctx.Title == "" {
+			ctx.Title = strings.TrimSpace(strings.TrimPrefix(line, "# "))
+			continue
+		}
 
-		// Header metadata lines
+		// Table-format metadata: | **Key** | value |  (written by gitwhy v0.8.x)
+		if strings.HasPrefix(line, "| **") && strings.Contains(line, "** |") {
+			if v, ok := parseTableMetaLine(line); ok {
+				switch v[0] {
+				case "Context ID":
+					ctx.ID = v[1]
+				case "Agent":
+					ctx.Agent = v[1]
+				case "Repository":
+					ctx.Repository = v[1]
+				case "Branch":
+					ctx.Branch = v[1]
+				case "Date":
+					if t, err := time.Parse("2006-01-02 15:04:05 UTC", v[1]); err == nil {
+						ctx.Date = t
+					} else if t, err := time.Parse(time.RFC3339, v[1]); err == nil {
+						ctx.Date = t
+					}
+				case "Domain/Topic":
+					parts := strings.SplitN(v[1], " / ", 2)
+					if len(parts) == 2 {
+						ctx.Domain = strings.TrimSpace(parts[0])
+						ctx.Topic = strings.TrimSpace(parts[1])
+					}
+				case "Tags":
+					// ignore tags field
+				}
+				continue
+			}
+		}
+
+		// Header metadata lines (bold-text format written by Render())
 		if strings.HasPrefix(line, "**Context ID:**") {
 			ctx.ID = strings.TrimSpace(strings.TrimPrefix(line, "**Context ID:**"))
 			continue
@@ -246,4 +281,25 @@ func Parse(src string) (*Context, error) {
 	}
 
 	return ctx, nil
+}
+
+// parseTableMetaLine parses a Markdown table row like:
+// | **Context ID** | `ctx_abc123` |
+// Returns ([key, value], true) on success.
+func parseTableMetaLine(line string) ([2]string, bool) {
+	parts := strings.Split(line, "|")
+	if len(parts) < 4 {
+		return [2]string{}, false
+	}
+	key := strings.TrimSpace(parts[1])
+	key = strings.TrimPrefix(key, "**")
+	key = strings.TrimSuffix(key, "**")
+	key = strings.TrimSpace(key)
+	val := strings.TrimSpace(parts[2])
+	val = strings.Trim(val, "`")
+	val = strings.TrimSpace(val)
+	if key == "" || val == "" {
+		return [2]string{}, false
+	}
+	return [2]string{key, val}, true
 }

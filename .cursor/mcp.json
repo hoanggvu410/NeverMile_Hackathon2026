@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "gitwhy2": {
+      "command": "D:\\NeverMile_Hackathon2026\\gitwhy2-mcp.exe",
+      "args": [],
+      "cwd": "D:\\NeverMile_Hackathon2026"
+    }
+  }
+}

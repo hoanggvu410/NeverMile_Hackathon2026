@@ -16,16 +16,8 @@ func main() {
 	databaseURL := mustEnv("DATABASE_URL")
 	port := getEnv("PORT", "8080")
 	jwtSecret := mustEnv("JWT_SECRET")
-	githubClientID := mustEnv("GITHUB_CLIENT_ID")
-	githubClientSecret := mustEnv("GITHUB_CLIENT_SECRET")
-	githubAppIDStr := mustEnv("GITHUB_APP_ID")
-	githubPrivateKeyPath := mustEnv("GITHUB_APP_PRIVATE_KEY_PATH")
-	githubWebhookSecret := mustEnv("GITHUB_WEBHOOK_SECRET")
-
-	appID, err := strconv.ParseInt(githubAppIDStr, 10, 64)
-	if err != nil {
-		log.Fatalf("invalid GITHUB_APP_ID: %v", err)
-	}
+	githubClientID := getEnv("GITHUB_CLIENT_ID", "")
+	githubClientSecret := getEnv("GITHUB_CLIENT_SECRET", "")
 
 	database, err := dbpkg.Connect(databaseURL)
 	if err != nil {
@@ -39,9 +31,23 @@ func main() {
 	}
 	log.Println("migrations applied")
 
-	app, err := githubapp.NewApp(appID, githubPrivateKeyPath, githubWebhookSecret)
-	if err != nil {
-		log.Fatalf("init github app: %v", err)
+	// GitHub App is optional — PR comment endpoint returns 503 when not configured.
+	var app *githubapp.App
+	githubAppIDStr := getEnv("GITHUB_APP_ID", "")
+	githubPrivateKeyPath := getEnv("GITHUB_APP_PRIVATE_KEY_PATH", "")
+	githubWebhookSecret := getEnv("GITHUB_WEBHOOK_SECRET", "")
+	if githubAppIDStr != "" && githubPrivateKeyPath != "" {
+		appID, parseErr := strconv.ParseInt(githubAppIDStr, 10, 64)
+		if parseErr != nil {
+			log.Fatalf("invalid GITHUB_APP_ID: %v", parseErr)
+		}
+		app, err = githubapp.NewApp(appID, githubPrivateKeyPath, githubWebhookSecret)
+		if err != nil {
+			log.Printf("warning: github app init failed (%v) — POST /v1/pr/comment will be unavailable", err)
+			app = nil
+		}
+	} else {
+		log.Println("GITHUB_APP_ID/GITHUB_APP_PRIVATE_KEY_PATH not set — PR comment feature disabled")
 	}
 
 	router := cloudapi.NewRouter(database, app, jwtSecret, githubClientID, githubClientSecret)
