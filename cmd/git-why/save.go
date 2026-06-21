@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	contextpkg "github.com/hoanggvu410/NeverMile_Hackathon2026/internal/context"
+	graphpkg "github.com/hoanggvu410/NeverMile_Hackathon2026/internal/graph"
 	"github.com/spf13/cobra"
 )
 
@@ -43,6 +45,15 @@ Example:
 			if err != nil {
 				fmt.Printf("saved: %s\n", id)
 				return nil
+			}
+			if graph, err := graphpkg.NewGraph(
+				filepath.Join(store.GitWhyDir(), "graph.db"),
+				filepath.Join(store.GitWhyDir(), "cache", "semantic.db"),
+			); err == nil {
+				if err := graph.SaveToGraph(*saved, nil); err != nil {
+					fmt.Fprintf(os.Stderr, "warning: graph index failed: %v\n", err)
+				}
+				_ = graph.Close()
 			}
 
 			domain := saved.Domain

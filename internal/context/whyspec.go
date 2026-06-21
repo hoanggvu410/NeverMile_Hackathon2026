@@ -46,6 +46,12 @@ func Render(ctx *Context) string {
 		date = time.Now().UTC()
 	}
 	sb.WriteString(fmt.Sprintf("**Date:** %s\n", date.Format(time.RFC3339)))
+	if ctx.Domain != "" {
+		sb.WriteString(fmt.Sprintf("**Domain:** %s\n", ctx.Domain))
+	}
+	if ctx.Topic != "" {
+		sb.WriteString(fmt.Sprintf("**Topic:** %s\n", ctx.Topic))
+	}
 
 	sb.WriteString("\n## Prompt\n\n")
 	for _, line := range strings.Split(ctx.Prompt, "\n") {
@@ -182,6 +188,14 @@ func Parse(src string) (*Context, error) {
 			if err == nil {
 				ctx.Date = t
 			}
+			continue
+		}
+		if strings.HasPrefix(line, "**Domain:**") {
+			ctx.Domain = strings.TrimSpace(strings.TrimPrefix(line, "**Domain:**"))
+			continue
+		}
+		if strings.HasPrefix(line, "**Topic:**") {
+			ctx.Topic = strings.TrimSpace(strings.TrimPrefix(line, "**Topic:**"))
 			continue
 		}
 

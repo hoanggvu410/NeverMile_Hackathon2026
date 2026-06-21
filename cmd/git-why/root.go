@@ -21,6 +21,8 @@ func init() {
 	rootCmd.AddCommand(newTreeCmd())
 	rootCmd.AddCommand(newSearchCmd())
 	rootCmd.AddCommand(newHookCmd())
+	rootCmd.AddCommand(newMCPCmd())
+	rootCmd.AddCommand(newReindexCmd())
 	rootCmd.AddCommand(newSetupCmd())
 	rootCmd.AddCommand(newPushCmd())
 }

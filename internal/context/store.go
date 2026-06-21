@@ -210,6 +210,9 @@ func (s *Store) Status() StatusInfo {
 	return info
 }
 
+// GitWhyDir returns the path to the .git/gitwhy directory for this repo.
+func (s *Store) GitWhyDir() string { return s.gitWhyDir }
+
 // contextPath builds the full file path for a given domain/topic/id triple.
 func (s *Store) contextPath(domain, topic, id string) string {
 	return filepath.Join(s.contextsDir, domain, topic, id+".md")
