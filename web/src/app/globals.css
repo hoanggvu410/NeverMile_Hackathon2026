@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: oklch(0.12 0.015 265);
+  --surface: oklch(0.16 0.018 265);
+  --surface-2: oklch(0.2 0.02 265);
+  --ink: oklch(0.96 0.005 265);
+  --ink-muted: oklch(0.65 0.01 265);
+  --accent: oklch(0.55 0.22 280);
+  --accent-2: oklch(0.62 0.16 250);
+  --accent-glow: oklch(0.55 0.22 280 / 0.35);
+  --border: oklch(0.32 0.02 265 / 0.55);
+  --danger: oklch(0.6 0.2 18);
+  --success: oklch(0.72 0.18 145);
+  --warning: oklch(0.78 0.15 75);
+
+  /* claim-intensity heat scale (Sapphire-style engagement grid) */
+  --heat-0: oklch(0.26 0.03 285 / 0.55);
+  --heat-1: oklch(0.42 0.11 288);
+  --heat-2: oklch(0.54 0.17 288);
+  --heat-3: oklch(0.64 0.21 290);
+  --heat-4: oklch(0.74 0.25 292);
+
+  /* emil: built-in easings are too weak; use stronger custom curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-micro: 150ms;
+  --dur-state: 240ms;
+  --dur-page: 360ms;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1100px 520px at 50% -8%, oklch(0.55 0.2 280 / 0.32), transparent 62%),
+    radial-gradient(820px 460px at 82% 4%, oklch(0.6 0.17 250 / 0.2), transparent 58%),
+    radial-gradient(1400px 360px at 50% 108%, oklch(0.5 0.13 220 / 0.22), transparent 60%),
+    linear-gradient(180deg, oklch(0.13 0.04 275) 0%, oklch(0.1 0.03 270) 42%, oklch(0.07 0.02 265) 100%);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+  font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+@layer components {
+  .glass {
+    background: oklch(0.18 0.02 265 / 0.55);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid var(--border);
+  }
+  .glass-strong {
+    background: oklch(0.16 0.022 265 / 0.78);
+    backdrop-filter: blur(22px) saturate(1.5);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    border: 1px solid var(--border);
+  }
+  .glass-inner {
+    background: oklch(0.22 0.022 265 / 0.6);
+    border: 1px solid oklch(0.34 0.02 265 / 0.4);
+  }
+  /* empty heatmap cell: faint diagonal hatch like the reference */
+  .heat-empty {
+    background-color: var(--heat-0);
+    background-image: repeating-linear-gradient(
+      45deg,
+      oklch(0.4 0.03 285 / 0.25) 0 1px,
+      transparent 1px 5px
+    );
+  }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0.03 265 / 0.5);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* React Flow theme overrides */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-path {
+  stroke-width: 1.5;
+}
+
+/* emil: touch devices fire :hover on tap, disable transform-based hovers there */
+@media (hover: none) {
+  .hover\:-translate-y-0\.5:hover,
+  .hover\:-translate-y-px:hover {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

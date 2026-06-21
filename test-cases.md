@@ -8,6 +8,7 @@
 ## Cần gì trước khi bắt đầu / Prerequisites
 
 - Go 1.21+ (`go version`)
+- Node.js 18+ (`node --version`) — chỉ cần cho dashboard web / only for the web dashboard
 - Git repo bất kỳ / Any git repo
 - Claude Code hoặc Cursor (để dùng MCP tools)
 - OpenAI API key (tuỳ chọn — không có thì tự động dùng local embedding)
@@ -208,6 +209,74 @@ Sau đó:
 
 ---
 
+## Test Case 6 — Dashboard web / Xem context trên web
+
+**Mục tiêu:** Sau khi save context, mở dashboard và thấy chính context của bạn.
+**Goal:** After saving a context, open the dashboard and see *your own* contexts render.
+
+> Dashboard đọc thẳng `.git/gitwhy/` của repo bạn qua một HTTP server local (không cần đăng nhập, không cloud). Nó **không** nói chuyện với MCP server — MCP chỉ ghi dữ liệu, dashboard chỉ đọc. Nên context bạn vừa save sẽ hiện ngay.
+>
+> The dashboard reads your repo's `.git/gitwhy/` through a local no-auth HTTP server. It does **not** talk to the MCP server — MCP writes, the dashboard reads — so a context you just saved shows up immediately.
+
+**Bước 1 — Build server đọc dữ liệu / Build the read API** (một lần / once):
+
+```bash
+cd path/to/hackathon
+go build -o serve.exe ./cmd/serve/      # Windows
+# go build -o serve ./cmd/serve/        # Mac/Linux
+```
+
+**Bước 2 — Chạy server trong repo của bạn / Run the server against your repo:**
+
+```bash
+# chạy bên trong repo của bạn / run from inside your repo
+path/to/serve.exe
+
+# hoặc trỏ vào repo khác / or point it at another repo
+path/to/serve.exe -repo C:/path/to/YOUR-repo
+```
+
+Server chạy ở `http://localhost:7420`. Kiểm tra nhanh / quick check:
+
+```bash
+curl http://localhost:7420/api/status      # repo, branch, context_count
+curl http://localhost:7420/api/contexts    # danh sách context đã lưu / your saved contexts
+```
+
+`context_count` phải khớp số context bạn đã save. `/api/contexts` phải trả về context của bạn.
+`context_count` should match how many you saved, and `/api/contexts` should list yours.
+
+**Bước 3 — Chạy dashboard / Run the dashboard** (một lần `npm install`):
+
+```bash
+cd path/to/hackathon/web
+npm install        # lần đầu tiên / first time only
+npm run dev
+```
+
+Mở `http://localhost:3000` → tự chuyển tới `/dashboard`.
+Open `http://localhost:3000` → it redirects to `/dashboard`.
+
+**Kết quả mong đợi / Expected result:**
+- Topbar hiện đúng tên repo + branch của bạn / your repo name + branch in the top bar
+- **Tổng quan / Dashboard:** context bạn vừa save xuất hiện trong feed; "Mật độ tri thức" heatmap tô màu các claim theo độ quan trọng
+- **Ngữ cảnh / Contexts:** lưới tất cả context, lọc theo domain
+- **Đồ thị / Graph:** các claim node + cạnh typed
+- **Tìm kiếm / Search:** gõ câu hỏi → trả về claim khớp (semantic nếu có embedding, nếu không thì substring)
+- Repo trống (chưa save gì) → hiện checklist "Bắt đầu với GitWhy" + empty states, **không lỗi** / empty repo shows the setup checklist and empty states, no errors
+
+**Lưu ý / Notes:**
+- Dashboard tự refresh status mỗi ~8s; nếu vừa save mà chưa thấy, **reload trang** / the dashboard polls status every ~8s; if a fresh save isn't showing, just reload the page.
+- Server (`serve`) và Claude Code không cần chạy cùng lúc — `serve` chỉ đọc file, save lúc nào đọc lúc đó / `serve` only reads files, so it picks up whatever has been saved.
+- Server chạy ở port/máy khác? Đặt `NEXT_PUBLIC_API_URL` trước khi `npm run dev`:
+  ```bash
+  # ví dụ / example
+  set NEXT_PUBLIC_API_URL=http://localhost:7421   # Windows
+  export NEXT_PUBLIC_API_URL=http://localhost:7421 # Mac/Linux
+  ```
+
+---
+
 ## Khi có lỗi / Troubleshooting
 
 | Lỗi | Nguyên nhân | Fix |
@@ -217,6 +286,10 @@ Sau đó:
 | `interrupt: false` sau khi save | graph.db chưa sync | `git why reindex` |
 | Context không tìm thấy | Sai cwd khi search | Đảm bảo Claude Code mở đúng repo |
 | Vague save (warnings xuất hiện) | Nội dung save quá ngắn/chung chung | Xem `AGENTS.md` để biết format đúng |
+| Dashboard trống dù đã save | `serve` chạy sai repo | Chạy `serve` trong repo của bạn, hoặc `serve -repo <path>` |
+| Dashboard không load data | `serve` chưa chạy / sai port | Kiểm tra `curl localhost:7420/api/status`; nếu khác port set `NEXT_PUBLIC_API_URL` |
+| `bind: address already in use` | Port 7420 đang bận | Đổi cổng: `serve -addr localhost:7421` (+ set `NEXT_PUBLIC_API_URL`) |
+| Search không có kết quả trên web | Embedding provider không sẵn sàng | Tự fallback về substring; set `OPENAI_API_KEY` để search semantic |
 
 ---
 
@@ -242,4 +315,10 @@ Sau đó:
 7. Commit
 8. gitwhy_save(context)         ← SAU KHI xong
 9. git why reindex              ← nếu cần sync
+
+--- xem trên web / view on the web ---
+10. go build -o serve.exe ./cmd/serve/   (một lần / once)
+11. ./serve.exe                          (trong repo của bạn / in your repo → :7420)
+12. cd web && npm install && npm run dev  (một lần install / install once → :3000)
+13. mở http://localhost:3000/dashboard   → thấy context của bạn / see your contexts
 ```
