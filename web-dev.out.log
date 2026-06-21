@@ -1,0 +1,22 @@
+
+> gitwhy-web@0.1.0 dev
+> next dev -p 3000
+
+  ▲ Next.js 14.2.18
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 7.3s (1483 modules)
+ GET /dashboard 200 in 7727ms
+ GET /dashboard 200 in 923ms
+ GET /dashboard 200 in 299ms
+ ○ Compiling /dashboard/contexts ...
+ ✓ Compiled /dashboard/search in 5.7s (1833 modules)
+ ○ Compiling /dashboard/contexts/[id] ...
+ ✓ Compiled /dashboard/contexts/[id] in 921ms (1824 modules)
+ ✓ Compiled /dashboard/search in 308ms (778 modules)
+ ✓ Compiled /dashboard/graph in 192ms (950 modules)
+ ✓ Compiled /dashboard/contexts in 378ms (954 modules)
+ GET /dashboard/contexts 200 in 1199ms
