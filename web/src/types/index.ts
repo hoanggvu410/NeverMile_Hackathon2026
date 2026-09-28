@@ -79,3 +79,11 @@ export interface GraphEdge {
   confidence: number;
   status: string;
 }
+
+export interface GitCommit {
+  sha: string;
+  parents: string[];
+  author: string;
+  date: string;
+  subject: string;
+}

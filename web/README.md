@@ -42,7 +42,8 @@ Override the API origin with `NEXT_PUBLIC_API_URL` if the server runs elsewhere.
 - **/dashboard/contexts** — full context grid.
 - **/dashboard/contexts/[id]** — structured whyspec (sections, files table, commits, raw toggle, copy ID).
 - **/dashboard/search** — debounced semantic search over the claim graph.
-- **/dashboard/graph** — React Flow claim graph, nodes colored by domain, typed animated edges.
+- **/dashboard/graph** — Git commit graph with real parent links, plus the React Flow claim graph under the Claims toggle. Set `GITWHY_REPO_PATH` for a repo outside the project root.
+- Use the **EN / VI** control in the top bar to switch dashboard language; the preference is saved in the browser.
 
 ## Stack
 

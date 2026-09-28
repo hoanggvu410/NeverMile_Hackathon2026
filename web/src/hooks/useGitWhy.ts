@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getContext,
+  getCommits,
   getContexts,
   getDomains,
   getGraphEdges,
@@ -43,6 +44,10 @@ export function useGraph() {
   const nodes = useQuery({ queryKey: ["graph-nodes"], queryFn: getGraphNodes });
   const edges = useQuery({ queryKey: ["graph-edges"], queryFn: getGraphEdges });
   return { nodes, edges };
+}
+
+export function useCommits() {
+  return useQuery({ queryKey: ["git-commits"], queryFn: getCommits });
 }
 
 export function useDomains() {

@@ -14,9 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "GitWhy - Bộ nhớ quyết định",
-  description:
-    "Truy vấn lý do đằng sau mọi quyết định mà AI agent của bạn đưa ra.",
+  title: "GitWhy - Codebase decision memory",
+  description: "Retrieve the reasoning behind decisions made by your coding agents.",
 };
 
 export default function RootLayout({
@@ -25,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="vi" className={inter.variable}>
       <body>
         <Aurora />
         <StarField />

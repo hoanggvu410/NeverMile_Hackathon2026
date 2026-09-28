@@ -1,17 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
   MarkerType,
+  useNodesState,
   type Edge,
   type Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { ClaimNode, type ClaimNodeData } from "./ClaimNode";
 import { EdgeLegend } from "./EdgeLegend";
+import { useLanguage } from "@/lib/language";
 import { edgeColor } from "@/lib/utils";
 import type { GraphEdge, GraphNode } from "@/types";
 
@@ -58,6 +60,18 @@ export function ClaimGraph({
   nodes: GraphNode[];
   edges: GraphEdge[];
 }) {
+  const { t } = useLanguage();
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const relatedIds = useMemo(() => {
+    if (!focusedId) return new Set<string>();
+    const related = new Set([focusedId]);
+    for (const edge of edges) {
+      if (edge.source === focusedId) related.add(edge.target);
+      if (edge.target === focusedId) related.add(edge.source);
+    }
+    return related;
+  }, [edges, focusedId]);
+
   const flowNodes = useMemo<Node<ClaimNodeData>[]>(() => {
     const pos = layout(nodes);
     return nodes.map((n) => ({
@@ -71,9 +85,30 @@ export function ClaimGraph({
         claimType: n.claim_type,
         importance: n.importance,
         edgeCount: n.edge_count,
+        focused: focusedId === n.id,
+        related: !focusedId || relatedIds.has(n.id),
+      },
+      style: {
+        opacity: !focusedId || relatedIds.has(n.id) ? 1 : 0.16,
+        transition: "opacity 220ms ease, filter 220ms ease",
+        filter: focusedId === n.id ? "drop-shadow(0 0 12px rgba(139,124,255,0.55))" : undefined,
+        zIndex: focusedId === n.id ? 2 : 1,
       },
     }));
-  }, [nodes]);
+  }, [focusedId, nodes, relatedIds]);
+
+  const [visibleNodes, setVisibleNodes, onNodesChange] = useNodesState<ClaimNodeData>(flowNodes);
+  useEffect(() => {
+    setVisibleNodes((current) => {
+      const previous = new Map(current.map((node) => [node.id, node]));
+      return flowNodes.map((node) => {
+        const existing = previous.get(node.id);
+        return existing
+          ? { ...node, position: existing.position, selected: existing.selected, dragging: existing.dragging }
+          : node;
+      });
+    });
+  }, [flowNodes, setVisibleNodes]);
 
   const flowEdges = useMemo<Edge[]>(() => {
     const ids = new Set(nodes.map((n) => n.id));
@@ -90,6 +125,9 @@ export function ClaimGraph({
             stroke: color,
             strokeWidth: 1.5,
             strokeDasharray: e.status === "candidate" ? "4 4" : undefined,
+            opacity: !focusedId || e.source === focusedId || e.target === focusedId ? 1 : 0.1,
+            transition: "opacity 220ms ease, stroke-width 220ms ease",
+            ...(focusedId && (e.source === focusedId || e.target === focusedId) ? { strokeWidth: 2.6 } : {}),
           },
           markerEnd: { type: MarkerType.ArrowClosed, color, width: 14, height: 14 },
           label: e.type,
@@ -99,15 +137,22 @@ export function ClaimGraph({
           labelBgBorderRadius: 4,
         };
       });
-  }, [edges, nodes]);
+  }, [edges, focusedId, nodes]);
 
   return (
     <div className="relative h-full w-full">
       <EdgeLegend />
+      <div className="glass-strong absolute right-4 top-4 z-10 rounded-[12px] px-3.5 py-3 text-[10px] text-ink-muted">
+        {t("Kéo node để sắp xếp · kéo nền để di chuyển khung")}
+      </div>
       <ReactFlow
-        nodes={flowNodes}
+        nodes={visibleNodes}
+        onNodesChange={onNodesChange}
         edges={flowEdges}
         nodeTypes={nodeTypes}
+        nodesDraggable
+        autoPanOnNodeDrag
+        onNodeClick={(_, node) => setFocusedId((current) => current === node.id ? null : node.id)}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         minZoom={0.15}

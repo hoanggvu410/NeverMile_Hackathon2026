@@ -1,31 +1,33 @@
 import { clsx, type ClassValue } from "clsx";
+import type { Locale } from "@/lib/language";
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-export function timeAgo(iso: string): string {
+export function timeAgo(iso: string, locale: Locale = "vi"): string {
   if (!iso) return "";
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";
   const secs = Math.floor((Date.now() - then) / 1000);
-  if (secs < 60) return "vừa xong";
+  if (secs < 60) return locale === "en" ? "just now" : "vừa xong";
   const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins} phút trước`;
+  if (mins < 60) return locale === "en" ? `${mins} min ago` : `${mins} phút trước`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ trước`;
+  if (hours < 24) return locale === "en" ? `${hours} hr ago` : `${hours} giờ trước`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} ngày trước`;
+  if (days < 30) return locale === "en" ? `${days} days ago` : `${days} ngày trước`;
   const months = Math.floor(days / 30);
-  if (months < 12) return `${months} tháng trước`;
-  return `${Math.floor(months / 12)} năm trước`;
+  if (months < 12) return locale === "en" ? `${months} mo ago` : `${months} tháng trước`;
+  const years = Math.floor(months / 12);
+  return locale === "en" ? `${years} yr ago` : `${years} năm trước`;
 }
 
-export function formatDate(iso: string): string {
+export function formatDate(iso: string, locale: Locale = "vi"): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("vi-VN", {
+  return d.toLocaleDateString(locale === "en" ? "en-US" : "vi-VN", {
     day: "numeric",
     month: "short",
     year: "numeric",

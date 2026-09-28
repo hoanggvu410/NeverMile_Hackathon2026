@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { ContextSummary } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { domainColor, timeAgo, truncate } from "@/lib/utils";
+import { useLanguage } from "@/lib/language";
 import {
   IconArrowRight,
   IconClock,
@@ -18,6 +19,7 @@ interface ContextCardProps {
 }
 
 export function ContextCard({ ctx, index, featured }: ContextCardProps) {
+  const { t, locale } = useLanguage();
   const color = domainColor(ctx.domain);
   return (
     <motion.div
@@ -87,7 +89,7 @@ export function ContextCard({ ctx, index, featured }: ContextCardProps) {
               <div className="mt-3 flex items-center gap-4 text-[11px] text-ink-muted">
                 <span className="flex items-center gap-1.5">
                   <IconClock className="h-3.5 w-3.5" />
-                  {timeAgo(ctx.date)}
+                  {timeAgo(ctx.date, locale)}
                 </span>
                 <span className="font-mono text-[10.5px] opacity-70">
                   {ctx.id}
@@ -96,7 +98,7 @@ export function ContextCard({ ctx, index, featured }: ContextCardProps) {
             </div>
 
             <span className="flex items-center gap-1 self-center text-[12px] text-ink-muted opacity-0 transition duration-150 group-hover:text-accent group-hover:opacity-100">
-              Xem <IconArrowRight className="h-3.5 w-3.5" />
+              {t("Xem")} <IconArrowRight className="h-3.5 w-3.5" />
             </span>
           </div>
         </div>

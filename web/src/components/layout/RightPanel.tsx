@@ -6,6 +6,7 @@ import { useContexts, useGraph, useStatus } from "@/hooks/useGitWhy";
 import { Badge } from "@/components/ui/Badge";
 import { domainColor, timeAgo, truncate } from "@/lib/utils";
 import { IconArrowRight, IconSpark } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/language";
 
 function Stat({
   label,
@@ -48,6 +49,7 @@ function Stat({
 }
 
 export function RightPanel() {
+  const { t, locale } = useLanguage();
   const { data: status } = useStatus();
   const { data: contexts } = useContexts();
   const { nodes, edges } = useGraph();
@@ -72,7 +74,7 @@ export function RightPanel() {
         className="glass-strong rounded-[14px] p-4"
       >
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-[13px] font-light text-ink">Ngữ cảnh mới nhất</span>
+          <span className="text-[13px] font-light text-ink">{t("Ngữ cảnh mới nhất")}</span>
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/20 text-accent">
             <IconSpark className="h-4 w-4" />
           </span>
@@ -88,14 +90,14 @@ export function RightPanel() {
               {truncate(latest.title || latest.prompt, 90)}
             </p>
             <div className="mt-3 flex items-center justify-between text-[11px] text-ink-muted">
-              <span>{timeAgo(latest.date)}</span>
+              <span>{timeAgo(latest.date, locale)}</span>
               <span className="flex items-center gap-1 text-accent opacity-0 transition-opacity group-hover:opacity-100">
-                Xem <IconArrowRight className="h-3 w-3" />
+                {t("Xem")} <IconArrowRight className="h-3 w-3" />
               </span>
             </div>
           </Link>
         ) : (
-          <p className="text-[12px] text-ink-muted">Chưa có ngữ cảnh nào.</p>
+          <p className="text-[12px] text-ink-muted">{t("Chưa có ngữ cảnh nào.")}</p>
         )}
       </motion.div>
 
@@ -106,12 +108,12 @@ export function RightPanel() {
         transition={{ duration: 0.25, delay: 0.05, ease: [0.23, 1, 0.32, 1] }}
         className="glass-strong rounded-[14px] p-4"
       >
-        <div className="mb-3 text-[13px] font-light text-ink">Tổng quan</div>
+        <div className="mb-3 text-[13px] font-light text-ink">{t("Tổng quan")}</div>
         <div className="grid grid-cols-2 gap-2.5">
           <Stat label="Claims" value={claimCount} color="#8b6bff" filled />
-          <Stat label="Cạnh đồ thị" value={edgeCount} color="#3a8dff" filled />
-          <Stat label="Ngữ cảnh" value={ctxCount} color="#22c1a6" />
-          <Stat label="Đang chờ" value={status?.pending_commits.length ?? 0} color="#e0a23a" />
+          <Stat label={t("Cạnh đồ thị")} value={edgeCount} color="#3a8dff" filled />
+          <Stat label={t("Ngữ cảnh")} value={ctxCount} color="#22c1a6" />
+          <Stat label={t("Đang chờ")} value={status?.pending_commits.length ?? 0} color="#e0a23a" />
         </div>
       </motion.div>
 
@@ -123,11 +125,11 @@ export function RightPanel() {
         className="glass-strong rounded-[14px] p-4"
       >
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-[13px] font-light text-ink">Sức khỏe đồ thị</span>
+          <span className="text-[13px] font-light text-ink">{t("Sức khỏe đồ thị")}</span>
           <span className="text-[13px] font-light text-accent">{health}%</span>
         </div>
         <p className="mb-3 text-[11px] text-ink-muted">
-          Độ phủ claims so với kỳ vọng
+          {t("Độ phủ claims so với kỳ vọng")}
         </p>
         <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
           <motion.div
@@ -143,7 +145,7 @@ export function RightPanel() {
               status?.graph_ready ? "bg-success" : "bg-warning"
             }`}
           />
-          {status?.graph_ready ? "Graph engine đang chạy" : "Graph offline"}
+          {status?.graph_ready ? t("Graph engine đang chạy") : "Graph offline"}
         </div>
       </motion.div>
 
@@ -169,12 +171,11 @@ export function RightPanel() {
           </span>
           <div>
             <div className="text-[15px] font-light leading-tight text-white">GitWhy</div>
-            <div className="text-[11.5px] text-white/65">Bộ nhớ quyết định</div>
+            <div className="text-[11.5px] text-white/65">{t("Bộ nhớ quyết định")}</div>
           </div>
         </div>
         <p className="relative mt-3 text-[11.5px] leading-relaxed text-white/70">
-          Mọi claim, cạnh và đánh đổi agent ghi lại, sẵn sàng truy xuất trước
-          quyết định kế tiếp.
+          {t("Mọi claim, cạnh và đánh đổi agent ghi lại, sẵn sàng truy xuất trước quyết định kế tiếp.")}
         </p>
       </motion.div>
     </aside>

@@ -4,6 +4,7 @@ import type {
   ContextSummary,
   GraphEdge,
   GraphNode,
+  GitCommit,
   SearchResult,
   Status,
 } from "@/types";
@@ -53,6 +54,11 @@ export async function getGraphNodes(): Promise<GraphNode[]> {
 
 export async function getGraphEdges(): Promise<GraphEdge[]> {
   const { data } = await api.get<GraphEdge[]>("/api/graph/edges");
+  return data ?? [];
+}
+
+export async function getCommits(): Promise<GitCommit[]> {
+  const { data } = await axios.get<GitCommit[]>("/api/commits", { timeout: 15000 });
   return data ?? [];
 }
 

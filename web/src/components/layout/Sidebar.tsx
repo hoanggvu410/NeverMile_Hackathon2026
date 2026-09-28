@@ -14,6 +14,7 @@ import {
   IconSettings,
 } from "@/components/ui/icons";
 import type { ComponentType, SVGProps } from "react";
+import { useLanguage } from "@/lib/language";
 
 interface NavItem {
   href: string;
@@ -30,6 +31,7 @@ const NAV: NavItem[] = [
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
+  const { t } = useLanguage();
   return (
     <Link href={item.href} className="group relative block">
       {active && (
@@ -48,7 +50,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         )}
       >
         <Icon className="h-[18px] w-[18px] shrink-0" />
-        <span className="font-light tracking-wide">{item.label}</span>
+        <span className="font-light tracking-wide">{t(item.label)}</span>
         {!active && (
           <IconArrowRight className="ml-auto h-3.5 w-3.5 -translate-x-1 opacity-0 transition duration-150 group-hover:translate-x-0 group-hover:opacity-60" />
         )}
@@ -59,6 +61,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const isActive = (href: string) =>
     href === "/dashboard"
       ? pathname === "/dashboard"
@@ -94,11 +97,11 @@ export function Sidebar() {
       <div className="mt-auto flex flex-col gap-1">
         <button className="group flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] text-ink-muted transition duration-150 hover:translate-x-0.5 hover:text-ink">
           <IconSettings className="h-[18px] w-[18px]" />
-          <span className="font-light tracking-wide">Cài đặt</span>
+          <span className="font-light tracking-wide">{t("Cài đặt")}</span>
         </button>
         <button className="group flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] text-ink-muted transition duration-150 hover:translate-x-0.5 hover:text-ink">
           <IconLogout className="h-[18px] w-[18px]" />
-          <span className="font-light tracking-wide">Đăng xuất</span>
+          <span className="font-light tracking-wide">{t("Đăng xuất")}</span>
         </button>
       </div>
     </aside>

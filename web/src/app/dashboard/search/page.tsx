@@ -7,6 +7,7 @@ import { SearchResultCard } from "@/components/search/SearchResultCard";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { IconSearch } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/language";
 
 const SUGGESTIONS = [
   "Vì sao chọn claim-level retrieval?",
@@ -15,6 +16,7 @@ const SUGGESTIONS = [
 ];
 
 export default function SearchPage() {
+  const { t } = useLanguage();
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
   const { data: results, isFetching } = useSearch(query);
@@ -39,11 +41,10 @@ export default function SearchPage() {
           {!hasQuery && (
             <>
               <h1 className="mb-2 text-[28px] font-light text-ink">
-                Tìm kiếm quyết định
+                {t("Tìm kiếm quyết định")}
               </h1>
               <p className="mb-6 text-[14px] text-ink-muted">
-                Hỏi về các quyết định trong codebase. Tìm theo ngữ nghĩa trên
-                claim graph.
+                {t("Hỏi về các quyết định trong codebase. Tìm theo ngữ nghĩa trên claim graph.")}
               </p>
             </>
           )}
@@ -54,7 +55,7 @@ export default function SearchPage() {
               autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Vì sao chọn X thay vì Y?"
+              placeholder={t("Vì sao chọn X thay vì Y?")}
               className="h-full flex-1 bg-transparent text-[15px] font-light text-ink outline-none placeholder:text-ink-muted/60"
             />
             {isFetching && (
@@ -70,7 +71,7 @@ export default function SearchPage() {
                   onClick={() => setInput(s)}
                   className="glass-inner rounded-full px-3.5 py-1.5 text-[12px] text-ink-muted transition-colors hover:text-ink"
                 >
-                  {s}
+                  {t(s)}
                 </button>
               ))}
             </div>
@@ -87,7 +88,7 @@ export default function SearchPage() {
         {!isFetching && results && results.length > 0 && (
           <div className="flex flex-col gap-3.5 pb-8">
             <div className="mb-1 text-[12px] text-ink-muted">
-              {results.length} kết quả
+              {results.length} {t("kết quả")}
             </div>
             {results.map((r, i) => (
               <SearchResultCard key={`${r.claim_id ?? r.id}-${i}`} result={r} index={i} />
@@ -98,8 +99,8 @@ export default function SearchPage() {
         {empty && (
           <EmptyState
             icon={<IconSearch className="h-6 w-6" />}
-            title="Không tìm thấy kết quả"
-            description="Thử diễn đạt khác, hoặc mở rộng câu hỏi."
+            title={t("Không tìm thấy kết quả")}
+            description={t("Thử diễn đạt khác, hoặc mở rộng câu hỏi.")}
           />
         )}
       </div>

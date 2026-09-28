@@ -6,6 +6,7 @@ import type { SearchResult } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { domainColor, edgeColor, scoreColor, truncate } from "@/lib/utils";
 import { IconArrowRight } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/language";
 
 export function SearchResultCard({
   result,
@@ -15,6 +16,7 @@ export function SearchResultCard({
   index: number;
 }) {
   const color = domainColor(result.domain);
+  const { t } = useLanguage();
   const pct = Math.round((result.score ?? 0) * 100);
   const text = result.claim || result.prompt || result.title;
 
@@ -49,7 +51,7 @@ export function SearchResultCard({
               </p>
               {result.title && result.claim && (
                 <p className="mt-1.5 text-[12px] text-ink-muted">
-                  từ “{truncate(result.title, 70)}”
+                  {t("từ “")}{truncate(result.title, 70)}”
                 </p>
               )}
             </div>
@@ -66,13 +68,13 @@ export function SearchResultCard({
                 >
                   {pct}
                 </div>
-                <span className="mt-1 text-[10px] text-ink-muted">khớp</span>
+                <span className="mt-1 text-[10px] text-ink-muted">{t("khớp")}</span>
               </div>
             )}
           </div>
           <div className="mt-3 flex items-center justify-end text-[12px] text-ink-muted opacity-0 transition-opacity group-hover:opacity-100">
             <span className="flex items-center gap-1 text-accent">
-              Mở ngữ cảnh <IconArrowRight className="h-3.5 w-3.5" />
+              {t("Mở ngữ cảnh")} <IconArrowRight className="h-3.5 w-3.5" />
             </span>
           </div>
         </div>

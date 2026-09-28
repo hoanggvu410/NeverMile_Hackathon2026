@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { IconCheck } from "@/components/ui/icons";
 import type { Status } from "@/types";
+import { useLanguage } from "@/lib/language";
 
 interface Step {
   label: string;
@@ -11,25 +12,26 @@ interface Step {
 }
 
 export function SetupChecklist({ status }: { status?: Status }) {
+  const { t } = useLanguage();
   const ctxCount = status?.context_count ?? 0;
   const steps: Step[] = [
     {
-      label: "Đã cài MCP server",
+      label: t("Đã cài MCP server"),
       hint: "gitwhy2-mcp",
       done: true,
     },
     {
-      label: "Đã cài post-commit hook",
+      label: t("Đã cài post-commit hook"),
       hint: "git why hook install",
       done: (status?.pending_commits.length ?? 0) >= 0 && ctxCount > 0,
     },
     {
-      label: "Đã lưu ngữ cảnh đầu tiên",
+      label: t("Đã lưu ngữ cảnh đầu tiên"),
       hint: "gitwhy_save",
       done: ctxCount > 0,
     },
     {
-      label: "Chạy tìm kiếm",
+      label: t("Chạy tìm kiếm"),
       hint: 'git why search "..."',
       done: ctxCount > 1,
     },
@@ -37,9 +39,9 @@ export function SetupChecklist({ status }: { status?: Status }) {
 
   return (
     <div className="glass-strong rounded-[14px] p-6">
-      <h3 className="text-[16px] font-light text-ink">Bắt đầu với GitWhy</h3>
+      <h3 className="text-[16px] font-light text-ink">{t("Bắt đầu với GitWhy")}</h3>
       <p className="mt-1 text-[13px] text-ink-muted">
-        Vài bước để bắt đầu ghi lại lý do đằng sau code của bạn.
+        {t("Vài bước để bắt đầu ghi lại lý do đằng sau code của bạn.")}
       </p>
       <div className="mt-5 flex flex-col gap-2.5">
         {steps.map((step, i) => (

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { IconArrowRight, IconGraph } from "@/components/ui/icons";
 import { truncate } from "@/lib/utils";
 import type { GraphNode } from "@/types";
+import { useLanguage } from "@/lib/language";
 
 const COLS = 12;
 const HEAT = ["var(--heat-1)", "var(--heat-2)", "var(--heat-3)", "var(--heat-4)"];
@@ -33,6 +34,7 @@ interface Row {
 
 export function KnowledgeHeatmap() {
   const { nodes } = useGraph();
+  const { t } = useLanguage();
 
   if (nodes.isLoading) {
     return <Skeleton className="h-[260px] w-full rounded-[16px]" />;
@@ -75,10 +77,10 @@ export function KnowledgeHeatmap() {
               <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-accent/20 text-accent">
                 <IconGraph className="h-4 w-4" />
               </span>
-              Mật độ tri thức
+              {t("Mật độ tri thức")}
             </h2>
             <p className="mt-1 text-[12px] text-ink-muted">
-              Claims theo domain, đậm dần theo độ quan trọng
+              {t("Claims theo domain, đậm dần theo độ quan trọng")}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -86,7 +88,7 @@ export function KnowledgeHeatmap() {
               {LEGEND.map((l) => (
                 <span key={l.label} className="flex items-center gap-1.5 text-[11px] text-ink-muted">
                   <span className="h-2.5 w-2.5 rounded-[3px]" style={{ background: l.color }} />
-                  {l.label}
+                  {t(l.label)}
                 </span>
               ))}
             </div>
@@ -94,7 +96,7 @@ export function KnowledgeHeatmap() {
               href="/dashboard/graph"
               className="group flex items-center gap-1 text-[12px] text-accent"
             >
-              Mở đồ thị
+              {t("Mở đồ thị")}
               <IconArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>

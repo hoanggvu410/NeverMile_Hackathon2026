@@ -1,10 +1,12 @@
 import { EDGE_COLORS } from "@/lib/utils";
+import { useLanguage } from "@/lib/language";
 
 export function EdgeLegend() {
+  const { t } = useLanguage();
   return (
     <div className="glass-strong absolute left-4 top-4 z-10 rounded-[12px] p-3.5">
       <div className="mb-2 text-[11px] uppercase tracking-wider text-ink-muted">
-        Loại cạnh
+        {t("Loại cạnh")}
       </div>
       <div className="flex flex-col gap-1.5">
         {Object.entries(EDGE_COLORS).map(([type, color]) => (

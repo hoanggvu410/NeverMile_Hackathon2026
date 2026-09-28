@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useStatus } from "@/hooks/useGitWhy";
 import { IconBell, IconChevronDown, IconSearch } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/language";
 
 function pageTitle(pathname: string): string {
   if (pathname === "/dashboard") return "Tổng quan";
@@ -15,21 +16,30 @@ function pageTitle(pathname: string): string {
 export function TopBar() {
   const pathname = usePathname();
   const { data: status } = useStatus();
-  const title = pageTitle(pathname);
+  const { locale, setLocale, t } = useLanguage();
+  const title = t(pageTitle(pathname));
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between px-6">
       <div className="flex items-center gap-2 text-[13px] text-ink-muted">
-        <span className="hover:text-ink">Trang chủ</span>
+        <span className="hover:text-ink">{t("Trang chủ")}</span>
         <span className="opacity-40">/</span>
         <span className="text-ink">{title}</span>
       </div>
 
       <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => setLocale(locale === "en" ? "vi" : "en")}
+          aria-label={t(locale === "en" ? "Switch to Vietnamese" : "Switch to English")}
+          className="glass-inner rounded-[10px] px-2.5 py-1.5 text-[11px] font-medium tracking-wide text-accent transition-colors hover:text-ink"
+        >
+          {locale === "en" ? "VI" : "EN"}
+        </button>
         <button className="glass-inner flex items-center gap-2 rounded-[10px] px-3 py-1.5 text-[12px] text-ink transition-colors duration-150 hover:border-accent/50">
           <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px] shadow-success" />
           <span className="font-light">
-            {status?.repository ?? "repo nội bộ"}
+            {status?.repository ?? t("repo nội bộ")}
           </span>
           <span className="opacity-40">/</span>
           <span className="text-ink-muted">{status?.branch ?? "main"}</span>

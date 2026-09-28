@@ -1,7 +1,10 @@
 /** Renders whyspec section text: bullet lines become a list, others paragraphs. */
+import { useLanguage } from "@/lib/language";
+
 export function Prose({ text }: { text: string }) {
+  const { t } = useLanguage();
   if (!text || !text.trim()) {
-    return <p className="text-[13px] italic text-ink-muted/60">Chưa ghi nhận.</p>;
+    return <p className="text-[13px] italic text-ink-muted/60">{t("Chưa ghi nhận.")}</p>;
   }
   const lines = text.split("\n").map((l) => l.trimEnd());
   const blocks: { type: "p" | "li"; text: string }[] = [];

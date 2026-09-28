@@ -16,6 +16,7 @@ import {
   IconFile,
 } from "@/components/ui/icons";
 import { domainColor, formatDate, shortSha } from "@/lib/utils";
+import { useLanguage } from "@/lib/language";
 
 const SECTIONS: { key: string; label: string }[] = [
   { key: "what_was_done", label: "Đã làm gì" },
@@ -27,6 +28,7 @@ const SECTIONS: { key: string; label: string }[] = [
 ];
 
 export default function ContextDetailPage() {
+  const { t, locale } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const id = String(params.id);
@@ -55,9 +57,9 @@ export default function ContextDetailPage() {
     return (
       <main className="flex h-full items-center justify-center px-8">
         <div className="text-center">
-          <p className="text-ink-muted">Không tìm thấy ngữ cảnh.</p>
+          <p className="text-ink-muted">{t("Không tìm thấy ngữ cảnh.")}</p>
           <Button className="mt-4" onClick={() => router.push("/dashboard/contexts")}>
-            Về danh sách ngữ cảnh
+            {t("Về danh sách ngữ cảnh")}
           </Button>
         </div>
       </main>
@@ -78,7 +80,7 @@ export default function ContextDetailPage() {
           onClick={() => router.back()}
           className="mb-4 flex items-center gap-1.5 text-[12px] text-ink-muted transition-colors hover:text-ink"
         >
-          <IconArrowRight className="h-3.5 w-3.5 rotate-180" /> Quay lại
+          <IconArrowRight className="h-3.5 w-3.5 rotate-180" /> {t("Quay lại")}
         </button>
 
         {/* Header */}
@@ -91,7 +93,7 @@ export default function ContextDetailPage() {
               <span className="text-[12px] text-ink-muted">/ {ctx.topic}</span>
               <span className="text-[12px] text-ink-muted">·</span>
               <span className="text-[12px] text-ink-muted">
-                {formatDate(ctx.date)}
+                {formatDate(ctx.date, locale)}
               </span>
               {ctx.branch && (
                 <Badge>
@@ -103,7 +105,7 @@ export default function ContextDetailPage() {
               {ctx.title}
             </h1>
             <div className="mt-2 flex items-center gap-3 text-[12px] text-ink-muted">
-              {ctx.saved_by && <span>lưu bởi {ctx.saved_by}</span>}
+              {ctx.saved_by && <span>{t("lưu bởi")} {ctx.saved_by}</span>}
               {ctx.agent && (
                 <span className="flex items-center gap-1.5">
                   <span className="h-1 w-1 rounded-full bg-accent" />
@@ -120,7 +122,7 @@ export default function ContextDetailPage() {
               ) : (
                 <IconCopy className="h-4 w-4" />
               )}
-              {copied ? "Đã chép" : "Chép ID"}
+              {copied ? t("Đã chép") : t("Chép ID")}
             </Button>
             <Button
               variant={showRaw ? "accent" : "glass"}
@@ -134,7 +136,7 @@ export default function ContextDetailPage() {
         {/* Prompt callout */}
         <div className="glass-inner mt-6 rounded-[12px] border-l-2 border-l-accent px-5 py-4">
           <div className="mb-1 text-[11px] uppercase tracking-wider text-accent/80">
-            Yêu cầu
+            {t("Yêu cầu")}
           </div>
           <p className="text-[13.5px] leading-relaxed text-ink/85">
             {ctx.prompt}
@@ -159,7 +161,7 @@ export default function ContextDetailPage() {
                     className="mb-3 text-[13px] font-medium uppercase tracking-wider"
                     style={{ color }}
                   >
-                    {s.label}
+                    {t(s.label)}
                   </h2>
                   <Prose text={value} />
                 </section>
@@ -170,7 +172,7 @@ export default function ContextDetailPage() {
             {ctx.files.length > 0 && (
               <section className="glass rounded-[14px] p-5">
                 <h2 className="mb-3 flex items-center gap-2 text-[13px] font-medium uppercase tracking-wider text-ink-muted">
-                  <IconFile className="h-4 w-4" /> Tệp ({ctx.files.length})
+                  <IconFile className="h-4 w-4" /> {t("Tệp")} ({ctx.files.length})
                 </h2>
                 <div className="overflow-hidden rounded-[10px] border border-border">
                   {ctx.files.map((f, i) => (

@@ -2,6 +2,7 @@
 
 import { Handle, Position } from "reactflow";
 import { domainColor, truncate } from "@/lib/utils";
+import { useLanguage } from "@/lib/language";
 
 export interface ClaimNodeData {
   domain: string;
@@ -10,9 +11,12 @@ export interface ClaimNodeData {
   claimType: string;
   importance: number;
   edgeCount: number;
+  focused?: boolean;
+  related?: boolean;
 }
 
 export function ClaimNode({ data }: { data: ClaimNodeData }) {
+  const { t } = useLanguage();
   const color = domainColor(data.domain);
   const scale = Math.min(1.4, 1 + data.edgeCount * 0.08);
 
@@ -24,6 +28,8 @@ export function ClaimNode({ data }: { data: ClaimNodeData }) {
         borderColor: `${color}66`,
         borderLeft: `3px solid ${color}`,
         transform: `scale(${scale})`,
+        transition: "box-shadow 220ms ease, border-color 220ms ease",
+        boxShadow: data.focused ? `0 0 0 1px ${color}, 0 0 22px ${color}66` : undefined,
       }}
     >
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-white/30" />
@@ -41,7 +47,7 @@ export function ClaimNode({ data }: { data: ClaimNodeData }) {
       </p>
       {data.edgeCount > 0 && (
         <div className="mt-1.5 text-[9.5px] text-ink-muted">
-          {data.edgeCount} liên kết
+          {data.edgeCount} {t("liên kết")}
         </div>
       )}
       <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-white/30" />

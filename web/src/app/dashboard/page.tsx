@@ -9,9 +9,11 @@ import { SetupChecklist } from "@/components/contexts/SetupChecklist";
 import { KnowledgeHeatmap } from "@/components/dashboard/KnowledgeHeatmap";
 import { RightPanel } from "@/components/layout/RightPanel";
 import { CardSkeleton } from "@/components/ui/Skeleton";
+import { useLanguage } from "@/lib/language";
 
 export default function DashboardPage() {
   const [domain, setDomain] = useState("");
+  const { t } = useLanguage();
   const { data: status } = useStatus();
   const { data: contexts, isLoading } = useContexts(domain);
 
@@ -28,10 +30,10 @@ export default function DashboardPage() {
           className="mb-7 max-w-[60ch]"
         >
           <h1 className="bg-gradient-to-r from-[#cdd9ff] via-[#6f8dff] to-[#8a6bff] bg-clip-text text-[36px] font-light leading-[1.08] text-transparent drop-shadow-[0_2px_24px_rgba(83,58,253,0.35)]">
-            Vì sao build cái này?
+            {t("Vì sao build cái này?")}
           </h1>
           <p className="mt-2.5 text-[14px] leading-relaxed text-ink-muted">
-            Lý do, đánh đổi và hướng đã loại bỏ sau mỗi quyết định agent đưa ra.
+            {t("Lý do, đánh đổi và hướng đã loại bỏ sau mỗi quyết định agent đưa ra.")}
           </p>
         </motion.div>
 
